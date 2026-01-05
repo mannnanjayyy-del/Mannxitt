@@ -1,68 +1,247 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MANXITT PANEL</title>
+
 <style>
 body{
-background:#000;
-font-family:Arial;
-color:#0ff;
+margin:0;
+height:100vh;
+background:linear-gradient(160deg,#000,#061a1f,#000);
+font-family:'Segoe UI',sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
-margin:0
+color:#fff;
+overflow:hidden;
 }
-.box{
-width:300px;
-background:#111;
+
+/* SPLASH / LOADING */
+#inject{
+position:fixed;
+top:0;left:0;right:0;bottom:0;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99;
+color:#0ff;
+font-size:14px;
+letter-spacing:2px;
+display:none;
+}
+
+.loader{
+width:40px;
+height:40px;
+border:3px solid #033;
+border-top:3px solid #0ff;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin-bottom:15px;
+}
+
+@keyframes spin{
+to{transform:rotate(360deg)}
+}
+
+/* APP */
+.app{
+width:340px;
+background:#0b0b0b;
+border-radius:25px;
 padding:20px;
-border-radius:12px;
-box-shadow:0 0 15px #0ff
+box-shadow:0 0 30px rgba(0,255,255,.4);
 }
-h1{
+
+.header{
 text-align:center;
-margin:0;
-font-size:22px
+margin-bottom:20px;
 }
-.item{
+
+.header h1{
+margin:0;
+font-size:26px;
+color:#00ffff;
+text-shadow:0 0 15px #00ffff;
+}
+
+.header p{
+margin:5px 0 0;
+font-size:12px;
+color:#888;
+}
+
+.vip{
+background:linear-gradient(45deg,#ffd700,#ffae00);
+color:#000;
+font-size:10px;
+padding:3px 8px;
+border-radius:10px;
+display:inline-block;
+margin-top:6px;
+font-weight:bold;
+}
+
+.card{
+background:#111;
+border-radius:15px;
+padding:15px;
+margin-bottom:15px;
 display:flex;
 justify-content:space-between;
-margin-top:15px;
-color:#fff
+align-items:center;
+box-shadow:0 0 10px rgba(0,255,255,.15);
 }
-input{transform:scale(1.3)}
-small{
-display:block;
+
+.card span{
+font-size:14px;
+}
+
+/* TOGGLE */
+.toggle{
+position:relative;
+width:50px;
+height:26px;
+}
+
+.toggle input{display:none}
+
+.slider{
+position:absolute;
+top:0;left:0;right:0;bottom:0;
+background:#333;
+border-radius:30px;
+transition:.4s;
+}
+
+.slider:before{
+content:"";
+position:absolute;
+width:20px;
+height:20px;
+left:3px;
+bottom:3px;
+background:white;
+border-radius:50%;
+transition:.4s;
+}
+
+input:checked + .slider{
+background:#00ffff;
+box-shadow:0 0 15px #00ffff;
+}
+
+input:checked + .slider:before{
+transform:translateX(24px);
+}
+
+.status{
+font-size:12px;
 text-align:center;
+margin-top:10px;
+}
+
+.footer{
+text-align:center;
+font-size:10px;
+color:#555;
 margin-top:15px;
-color:#666
 }
 </style>
 </head>
+
 <body>
 
-<div class="box">
-<h1>MANXITT</h1>
-
-<div class="item">
-<span>AIMLOCK</span>
-<input type="checkbox">
+<!-- FAKE INJECT -->
+<div id="inject">
+    <div class="loader"></div>
+    <div id="injectText">INJECTING...</div>
 </div>
 
-<div class="item">
-<span>STABILIZER</span>
-<input type="checkbox">
+<div class="app">
+    <div class="header">
+        <h1>MANXITT</h1>
+        <p>Free Fire Mod Panel</p>
+        <div class="vip">VIP MODE</div>
+    </div>
+
+    <div class="card">
+        <span>🎯 AIMLOCK</span>
+        <label class="toggle">
+            <input type="checkbox" onchange="toggleFeature(this)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="card">
+        <span>🔫 STABILIZER</span>
+        <label class="toggle">
+            <input type="checkbox" onchange="toggleFeature(this)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="card">
+        <span>💀 AIMHEAD 100%</span>
+        <label class="toggle">
+            <input type="checkbox" onchange="toggleFeature(this)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="status" id="status">STATUS: READY</div>
+
+    <div class="footer">
+        UI ONLY • NO REAL CHEAT<br>
+        © MANXITT 2026
+    </div>
 </div>
 
-<div class="item">
-<span>AIMHEAD 100%</span>
-<input type="checkbox">
-</div>
+<script>
+/* SOUND (NO FILE, PURE JS) */
+function playSound(on){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-<small>UI ONLY • NO REAL CHEAT</small>
-</div>
+    osc.type = "square";
+    osc.frequency.value = on ? 900 : 300;
+    gain.gain.value = 0.15;
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    setTimeout(()=>osc.stop(),120);
+}
+
+/* FAKE INJECT */
+function showInject(text){
+    const inj = document.getElementById("inject");
+    document.getElementById("injectText").innerText = text;
+    inj.style.display = "flex";
+    setTimeout(()=>inj.style.display="none",1200);
+}
+
+/* TOGGLE ACTION */
+function toggleFeature(el){
+    if(el.checked){
+        playSound(true);
+        showInject("CHEAT ENABLED...");
+        document.getElementById("status").innerText = "STATUS: ACTIVE";
+        document.getElementById("status").style.color = "#0f0";
+    }else{
+        playSound(false);
+        showInject("CHEAT DISABLED...");
+        document.getElementById("status").innerText = "STATUS: OFF";
+        document.getElementById("status").style.color = "#f00";
+    }
+}
+</script>
 
 </body>
 </html>
